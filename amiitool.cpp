@@ -1,11 +1,13 @@
 #include "amiitool.h"
 #include "amiibo.h"
 
+#include <amiitool_lib.h>
+
 #include <stdio.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <unistd.h>
-
-#define COMMAND_SIZE 1000
+#endif
 
 Amiitool *Amiitool::_shared = NULL;
 const char *Amiitool::_keyPath = NULL;
@@ -20,87 +22,18 @@ void Amiitool::setKeyPath(const char *keyPath) {
   Amiitool::_keyPath = keyPath;
 }
 
-Amiitool::Amiitool() {
-  if (pipe(writePipe) < 0) {
-    fprintf(stderr, "Could not open write pipe\n");
-    exit(1);
-  }
-
-  if (pipe(readPipe) < 0) {
-    fprintf(stderr, "Could not open read pipe\n");
-    exit(1);
-  }
-
-  savedStdin = dup(0);
-  savedStdout = dup(1);
-}
+Amiitool::Amiitool() {}
 
 int Amiitool::decryptBuffer(uint8_t *encryptedBuffer, uint8_t *decryptedBuffer) {
   printf("\nDecrypting bin\n");
-  return pipeToAmiitool("-d", Amiitool::_keyPath, encryptedBuffer, decryptedBuffer);
+  int ret = decrypt(Amiitool::_keyPath, encryptedBuffer, decryptedBuffer, AMIIBO_SIZE, AMIIBO_SIZE);
+  return ret;
 }
 
 int Amiitool::encryptBuffer(uint8_t *encryptedBuffer, uint8_t *decryptedBuffer) {
   printf("Encrypting\n");
-  return pipeToAmiitool("-e", Amiitool::_keyPath, decryptedBuffer, encryptedBuffer);
-}
-
-int Amiitool::pipeToAmiitool(const char *args, const char* keyPath, uint8_t *inputBuffer, uint8_t *outputBuffer) {
-  printf("Sending bin to amiitool...");
-
-  redirectIO();
-
-  int pipeSize;
-  if (AMIIBO_SIZE != (pipeSize = write(writePipe[1], inputBuffer, AMIIBO_SIZE))) {
-    fprintf(stderr, "Wrote incorrect size to pipe: %d\n", pipeSize);
-    perror("write");
-    exit(1);
-  }
-
-  const char *staticCommand = "./amiitool/amiitool %s -k %s";
-  char command[COMMAND_SIZE + strlen(staticCommand)];
-
-  if (strlen(keyPath) >= COMMAND_SIZE) {
-    fprintf(stderr, "Key path too big\n");
-    exit(1);
-  }
-
-  sprintf(command, staticCommand, args, keyPath);
-  system(command);
-
-  if (AMIIBO_SIZE != (pipeSize = read(readPipe[0], outputBuffer, AMIIBO_SIZE))) {
-    fprintf(stderr, "Read incorrect size from pipe: %d\n", pipeSize);
-    exit(1);
-  }
-
-  resetIO();
-
-  printf("Done\n");
-  return 0;
-}
-
-void Amiitool::redirectIO() {
-  if (dup2(writePipe[0], 0) < 0) {
-    fprintf(stderr, "Could not redirect stdin\n");
-    exit(1);
-  }
-
-  if (dup2(readPipe[1], 1) < 0) {
-    fprintf(stderr, "Could not redirect stdout\n");
-    exit(1);
-  }
-}
-
-void Amiitool::resetIO() {
-  if (dup2(savedStdin, 0) < 0) {
-    fprintf(stderr, "Could not reset stdin\n");
-    exit(1);
-  }
-
-  if (dup2(savedStdout, 1) < 0) {
-    fprintf(stderr, "Could not reset stdout\n");
-    exit(1);
-  }
+  int ret = encrypt(Amiitool::_keyPath, decryptedBuffer, encryptedBuffer, AMIIBO_SIZE, AMIIBO_SIZE);
+  return ret;
 }
 
 void Amiitool::printHex(const uint8_t *buffer, const size_t size) {

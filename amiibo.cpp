@@ -26,7 +26,7 @@ void Amiibo::setUUID(const uint8_t *uuid) {
 }
 
 void Amiibo::readFileIntoBuffer(const char *filePath, uint8_t *buffer, size_t size) {
-  FILE *file = fopen(filePath, "r");
+  FILE *file = fopen(filePath, "rb");
 
   if (!file) {
     fprintf(stderr, "Could not open %s\n", filePath);

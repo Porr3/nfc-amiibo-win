@@ -12,10 +12,14 @@
 const uint8_t dynamicLockBytes[4] = { 0x01, 0x00, 0x0f, 0xbd };
 const uint8_t staticLockBytes[4] = { 0x00, 0x00, 0x0F, 0xE0 };
 
+#ifdef _MSC_VER
+const nfc_modulation nmMifare = { NMT_ISO14443A, NBR_106 };
+#else
 const nfc_modulation nmMifare = {
   .nmt = NMT_ISO14443A,
   .nbr = NBR_106,
 };
+#endif
 
 NFCHandler::NFCHandler() {
   printf("Initializing NFC adapter\n");

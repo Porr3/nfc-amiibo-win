@@ -1,3 +1,6 @@
 [submodule "amiitool"]
 	path = amiitool
 	url = https://github.com/Porr3/amiitool.git
+[submodule "libnfc"]
+	path = libnfc
+	url = https://github.com/Porr3/libnfc.git
