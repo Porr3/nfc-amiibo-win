@@ -9,8 +9,8 @@ class NFCHandler {
 public:
   NFCHandler();
   ~NFCHandler();
-  void readTagUUID(uint8_t uuidBuffer[]);
-  void writeAmiibo(Amiibo *amiibo);
+  bool readTagUUID(uint8_t uuidBuffer[]);
+  bool writeAmiibo(Amiibo *amiibo);
 
 private:
   nfc_target target;

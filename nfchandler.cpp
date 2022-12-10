@@ -49,10 +49,12 @@ NFCHandler::~NFCHandler() {
     nfc_close(device);
 }
 
-void NFCHandler::readTagUUID(uint8_t uuidBuffer[]) {
+bool NFCHandler::readTagUUID(uint8_t uuidBuffer[]) {
   printf("***Scan tag***\n");
+	
+	int ret = nfc_initiator_select_passive_target(device, nmMifare, NULL, 0, &target);
 
-  if (nfc_initiator_select_passive_target(device, nmMifare, NULL, 0, &target) > 0) {
+  if (ret > 0) {
     printf("Read UID: ");
     int uidSize = target.nti.nai.szUidLen;
     Amiitool::shared()->printHex(target.nti.nai.abtUid, uidSize);
@@ -66,14 +68,23 @@ void NFCHandler::readTagUUID(uint8_t uuidBuffer[]) {
       uuidBuffer[i] = target.nti.nai.abtUid[i];
     }
   }
+  else {
+    fprintf(stderr, "No tag provided, exiting ...\n");
+    return false;
+	}
+
+  return true;
 }
 
-void NFCHandler::writeAmiibo(Amiibo *amiibo) {
+bool NFCHandler::writeAmiibo(Amiibo *amiibo) {
     uint8_t uuid[UUID_SIZE];
-    readTagUUID(uuid);
+    if(!readTagUUID(uuid))
+      return false;
 
     amiibo->setUUID(uuid);
     writeBuffer(amiibo->encryptedBuffer);
+
+    return true;
 }
 
 void NFCHandler::writeBuffer(const uint8_t *buffer) {

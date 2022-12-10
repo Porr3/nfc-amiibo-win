@@ -25,7 +25,7 @@ void Amiitool::setKeyPath(const char *keyPath) {
 Amiitool::Amiitool() {}
 
 int Amiitool::decryptBuffer(uint8_t *encryptedBuffer, uint8_t *decryptedBuffer) {
-  printf("\nDecrypting bin\n");
+  printf("Decrypting bin\n");
   int ret = decrypt(Amiitool::_keyPath, encryptedBuffer, decryptedBuffer, AMIIBO_SIZE, AMIIBO_SIZE);
   return ret;
 }
