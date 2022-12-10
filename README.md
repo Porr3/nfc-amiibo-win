@@ -1,7 +1,8 @@
-# nfc-amiibo
+# nfc-amiibo-win
 
 This is a tool for spoofing amiibo NFC tags using a PN532 NFC compatible reader/writer with [libnfc](http://nfc-tools.org/index.php/Libnfc).  
-This is a very shallow clone of [pimiibo](https://github.com/garrett-davidson/pimiibo), all credits go to the original creator, I only made some edits to have it work on regular Linux.
+This is a fork of [nfc-amiibo](https://github.com/crazyquark/nfc-amiibo), all credits go to the original creator, I only made some edits to have it work on Windows.
+For Linux please use the original git as I have not tested whether the changes made still work on Linux.
 
 ## Hardware
 1. You can probably use any `libnfc` supported NFC reader/writer(I used the always popular ACR122U)
@@ -10,17 +11,32 @@ This is a very shallow clone of [pimiibo](https://github.com/garrett-davidson/pi
 
 ## Software setup
 
-1. Clone this repository with submodules:
+### Install the Driver
 
-    `git clone --recurse-submodules https://github.com/crazyquark/nfc-amiibo.git`
+The project requires the PC/SC driver for the specific NFC device to be installed. For the ACR122U that driver can be found [here](https://www.acs.com.hk/en/driver/3/acr122u-usb-nfc-reader/).
 
-2. Install `libnfc-dev`:
+### Use existing release
 
-    `sudo apt-get update && sudo apt-get install libnfc-dev`
+Just download the latest binary from the [release page](https://github.com/Porr3/nfc-amiibo-win/releases/latest), it should work out of the box.
 
-3. Compile sources.  
+### Build from source
 
-    `make`
+1. Install Visual Studio 2022 and CMake
+
+2. Clone this repository with submodules
+
+    `git clone --recurse-submodules https://github.com/Porr3/nfc-amiibo.git`
+
+3. Compile sources
+
+    start a `x64 Native Tools Command Prompt for VS 2022` (should be listed in the start menu Visual Studio 2022 folder)
+
+    cd into the cloned git and run:
+    ```
+    cmake . -B build
+    cmake --build build --config Release
+    ```
+    If everything worked the binary should be in `<git_folder>/bin`
 
 ## Getting the required files
 After you have followed the above setup, you just need two more files to start making your own amiibo: an amiibo dump, and the key file.
@@ -34,29 +50,11 @@ This is the file containing Nintendo's key, which they use to encrypt/decrypt da
 ## Usage
 
 Start the program:
-`./nfc-amiibo path-to-key-file path-to-amiibo-file`
+`nfc-amiibo.exe path-to-key-file path-to-amiibo-file`
 
 Once you see `***Scan tag***`, place and hold your blank NFC tag on the reader/writer. You should then see messages scrolling past with each data page as it begins writing them. ***Do not remove your tag until the write is finished.*** When you see `Finished writing tag`, it is safe to remove your tag and enjoy your new amiibo!
 
 ## Common Problems
-
-* Failed to initialize adapter
-  ```
-  Initializing NFC adapter
-  ERROR: Unable to open NFC device.
-  ``` 
-  Check that something like the PN533 driver or the pcscd daemon is blocking access to your reader. If you have `libnfc-bin` installed try `nfc-list` first. These are common problems with `libnfc` on Linux so you should first check that you can use `nfc-list` or any other common tool. You might also need to run with `sudo` if you do not have the right udev rules for the NFC reader.  
-  On my system I had to blacklist the `pn533` and `nfc` kernel modules by adding them a file(you can call it whatever you want but it must have a .conf extension):  
-  `/etc/modprobe.d/blacklist-libnfc.conf`:
-  ```  
-  blacklist nfc  
-  blacklist pn533  
-  ```  
-  This is effectively blocks those modules from loading at boot, you could also do:
-  ```
-  sudo rmmod nfc && sudo rmmod pn533
-  ```
-  to temporarily remove these modules from the running kernel.  
     
 * Failed to write a page
   ```
