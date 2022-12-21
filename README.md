@@ -25,7 +25,7 @@ Just download the latest binary from the [release page](https://github.com/Porr3
 
 2. Clone this repository with submodules
 
-    `git clone --recurse-submodules https://github.com/Porr3/nfc-amiibo.git`
+    `git clone --recurse-submodules https://github.com/Porr3/nfc-amiibo-win.git`
 
 3. Compile sources
 
