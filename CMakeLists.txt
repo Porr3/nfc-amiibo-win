@@ -15,17 +15,21 @@ endif()
 
 add_subdirectory(amiitool)
 
-option(BUILD_EXAMPLES "" OFF)
-option(BUILD_DOXYGEN "" OFF)
-option(BUILD_UTILS "" ON)
-option(LIBNFC_STATIC "" ON)
-option(LIBNFC_DRIVER_PCSC "" ON)
-option(LIBNFC_DRIVER_ACR122_PCSC "" ON)
-option(LIBNFC_DRIVER_ACR122_USB "" OFF)
-option(LIBNFC_DRIVER_PN53X_USB "" OFF)
-add_subdirectory(libnfc)
+if(WIN32)
+	option(BUILD_EXAMPLES "" OFF)
+	option(BUILD_DOXYGEN "" OFF)
+	option(BUILD_UTILS "" ON)
+	option(LIBNFC_STATIC "" ON)
+	option(LIBNFC_DRIVER_PCSC "" ON)
+	option(LIBNFC_DRIVER_ACR122_PCSC "" ON)
+	option(LIBNFC_DRIVER_ACR122_USB "" OFF)
+	option(LIBNFC_DRIVER_PN53X_USB "" OFF)
+	add_subdirectory(libnfc)
 
-include_directories(libnfc/include)
+	include_directories(libnfc/include)
+else()
+	# TODO: Check if libnfc-dev is installed, if not print message and exit
+endif()
 
 file(GLOB src "*.cpp")
 
